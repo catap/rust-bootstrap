@@ -20,7 +20,7 @@ fn main() {
         }
     }
 
-    if !Path::new("libgit2/.git").exists() {
+    if !Path::new("libgit2/src").exists() {
         let _ = Command::new("git")
             .args(&["submodule", "update", "--init", "libgit2"])
             .status();
