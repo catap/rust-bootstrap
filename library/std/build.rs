@@ -1,6 +1,23 @@
 use std::env;
 
 fn main() {
+    if env::var_os("MACPORTS_LEGACY_SUPPORT_ENABLED").map(|s| s.to_string_lossy() == "1").unwrap_or(false) {
+        let str = env::var_os("MACPORTS_LEGACY_SUPPORT_LDFLAGS")
+            .map(|s| s.to_string_lossy().to_string())
+            .expect("MACPORTS_LEGACY_SUPPORT_LDFLAGS shouldn't be empty");
+        let (path, mut name) = str.strip_suffix(".a")
+            .expect("MACPORTS_LEGACY_SUPPORT_LDFLAGS should be static library")
+            .split_at(str.rfind("/").unwrap_or(0));
+        name = name.strip_prefix("/lib").unwrap_or(name);
+        if path.len() > 0 {
+            println!("cargo:rustc-link-search=native={}", path);
+        }
+        if name.len() == 0 {
+            panic!("MACPORTS_LEGACY_SUPPORT_LDFLAGS should contains library name")
+        }
+        println!("cargo:rustc-link-lib=static={}", name);
+    }
+
     println!("cargo:rerun-if-changed=build.rs");
     let target = env::var("TARGET").expect("TARGET was not set");
     if target.contains("freebsd") {
