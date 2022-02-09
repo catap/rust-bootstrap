@@ -532,7 +532,9 @@ fn macos_link_search_path() -> Option<String> {
     for line in stdout.lines() {
         if line.contains("libraries: =") {
             let path = line.split('=').skip(1).next()?;
-            return Some(format!("{}/lib/darwin", path));
+            if !path.is_empty() {
+                return Some(format!("{}/lib/darwin", path));
+            }
         }
     }
 
